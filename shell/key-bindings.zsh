@@ -48,7 +48,7 @@ fzf-history-widget() {
   zle redisplay
 }
 zle     -N   fzf-history-widget
-bindkey '^R' fzf-history-widget
+bindkey '^S' fzf-history-widget
 
 fi
 

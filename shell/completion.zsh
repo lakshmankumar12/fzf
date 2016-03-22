@@ -138,7 +138,7 @@ _fzf_complete_unalias() {
 }
 
 fzf-completion() {
-  local tokens cmd prefix trigger tail fzf matches lbuf d_cmds
+  local tokens cmd prefix trigger tail fzf matches lbuf d_cmds till prefix_precompute ltill lbuf_precompute
   setopt localoptions noshwordsplit
 
   # http://zsh.sourceforge.net/FAQ/zshfaq03.html
@@ -168,8 +168,13 @@ fzf-completion() {
   elif [ ${#tokens} -gt 1 -a "$tail" = "$trigger" ]; then
     d_cmds=(${=FZF_COMPLETION_DIR_COMMANDS:-cd pushd rmdir})
 
-    [ -z "$trigger"      ] && prefix=${tokens[-1]} || prefix=${tokens[-1]:0:-${#trigger}}
-    [ -z "${tokens[-1]}" ] && lbuf=$LBUFFER        || lbuf=${LBUFFER:0:-${#tokens[-1]}}
+    till=$(expr ${#tokens[-1]} - ${#trigger})
+    prefix_precompute=${tokens[-1]:0:$till}
+    ltill=$(expr ${#LBUFFER} - ${#tokens[-1]})
+    lbuf_precompute=${LBUFFER:0:$ltill}
+
+    [ -z "$trigger"      ] && prefix=${tokens[-1]} || prefix=$prefix_precompute
+    [ -z "${tokens[-1]}" ] && lbuf=$LBUFFER        || lbuf=$lbuf_precompute
 
     if eval "type _fzf_complete_${cmd} > /dev/null"; then
       eval "prefix=\"$prefix\" _fzf_complete_${cmd} \"$lbuf\""
